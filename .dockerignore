@@ -1,0 +1,15 @@
+__pycache__
+*.py[cod]
+*.log
+.git
+.gitignore
+*.md
+README*.md
+DEPLOYMENT*.md
+.env
+.DS_Store
+*.swp
+logs/
+supervisor_logs/
+telegram_streams.json
+*.backup
