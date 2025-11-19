@@ -1,12 +1,10 @@
 services:
   - type: web
     name: telegram-stream
-    env: python
+    runtime: docker
     plan: starter
-    buildCommand: |
-      pip install --no-cache-dir -r requirements.txt
-      apt-get update && apt-get install -y ffmpeg tmux
-    startCommand: supervisord -c supervisord.conf
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
