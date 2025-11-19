@@ -1,0 +1,510 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 لوحة البث المباشر - تليجرام</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0088cc 0%, #005f8c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            color: #0088cc;
+        }
+
+        .streams-count {
+            background: #e3f2fd;
+            color: #0277bd;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            color: #4b5563;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .input-field, .textarea-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .input-field:focus, .textarea-field:focus {
+            outline: none;
+            border-color: #0088cc;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+        }
+
+        .textarea-field {
+            font-family: 'Courier New', monospace;
+            min-height: 80px;
+            resize: vertical;
+            font-size: 0.75em;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0088cc 0%, #005f8c 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8em;
+            width: auto;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .alert.show {
+            display: flex;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border-right: 4px solid #22c55e;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-right: 4px solid #ef4444;
+        }
+
+        .streams-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .stream-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .stream-card.running {
+            border-color: #0088cc;
+            background: #e3f2fd;
+        }
+
+        .stream-card.stopped {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .stream-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stream-name {
+            font-weight: 700;
+            font-size: 0.95em;
+            color: #1f2937;
+        }
+
+        .stream-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .status-running {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-stopped {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .stream-info {
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .stream-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.8em;
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 إدارة البثوث المباشرة - تليجرام</h1>
+            <div class="streams-count">
+                <span id="streams-count">0 بث نشط</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- إضافة بث جديد -->
+            <div>
+                <div class="card">
+                    <div class="card-title">➕ إضافة بث تليجرام جديد</div>
+
+                    <div class="info-box">
+                        💡 <strong>للحصول على رابط RTMP من تليجرام:</strong><br>
+                        1. افتح بوت @VividBot في تليجرام<br>
+                        2. ابدأ بث مباشر جديد<br>
+                        3. انسخ رابط الـ RTMP والصقه هنا
+                    </div>
+
+                    <div id="alert-add" class="alert"></div>
+
+                    <div class="input-group">
+                        <label class="input-label">📝 اسم البث</label>
+                        <input type="text" id="stream-name" class="input-field" placeholder="بث تليجرام 1">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">🔑 رابط RTMP من تليجرام</label>
+                        <textarea id="stream-key" class="textarea-field" placeholder="rtmp://dc4-1.rtmp.t.me/s/xxxxxxxxx"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">📺 مصدر البث (اختياري)</label>
+                        <input type="text" id="source-url" class="input-field" placeholder="http://example.com/stream.m3u8">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addStream()">
+                        ➕ إضافة وبدء البث
+                    </button>
+                </div>
+            </div>
+
+            <!-- قائمة البثوث -->
+            <div class="card">
+                <div class="card-title">📋 البثوث النشطة</div>
+                <div id="streams-list" class="streams-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📱</div>
+                        <div>لا توجد بثوث حالياً</div>
+                        <div style="font-size: 0.85em; margin-top: 5px;">أضف بث جديد من القائمة على اليسار</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+
+        window.addEventListener('load', () => {
+            loadStreams();
+            refreshInterval = setInterval(loadStreams, 3000);
+        });
+
+        function showAlert(id, message, type) {
+            const alert = document.getElementById('alert-' + id);
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            setTimeout(() => alert.classList.remove('show'), 5000);
+        }
+
+        async function loadStreams() {
+            try {
+                const res = await fetch('/api/telegram/streams');
+                const data = await res.json();
+                displayStreams(data.streams);
+            } catch (err) {
+                console.error('خطأ في التحديث:', err);
+            }
+        }
+
+        function displayStreams(streams) {
+            const container = document.getElementById('streams-list');
+            const countEl = document.getElementById('streams-count');
+            
+            const runningCount = streams.filter(s => s.status === 'running').length;
+            countEl.textContent = `${runningCount} بث نشط`;
+
+            if (streams.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📱</div>
+                        <div>لا توجد بثوث حالياً</div>
+                        <div style="font-size: 0.85em; margin-top: 5px;">أضف بث جديد من القائمة على اليسار</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = streams.map(stream => `
+                <div class="stream-card ${stream.status}">
+                    <div class="stream-header">
+                        <div class="stream-name">${escapeHtml(stream.name)}</div>
+                        <div class="stream-status status-${stream.status}">
+                            ${stream.status === 'running' ? '🟢 يعمل' : '🔴 متوقف'}
+                        </div>
+                    </div>
+                    <div class="stream-info">
+                        🕐 ${stream.created_at}<br>
+                        🔑 ${stream.stream_key}<br>
+                        📺 ${stream.source_url}
+                    </div>
+                    <div class="stream-actions">
+                        ${stream.status === 'running' ? 
+                            `<button class="btn btn-danger btn-small" onclick="stopStream('${stream.id}')">⏹️ إيقاف</button>` :
+                            ''
+                        }
+                        <button class="btn btn-secondary btn-small" onclick="viewLogs('${stream.id}')">📋 السجلات</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteStream('${stream.id}')">🗑️ حذف</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addStream() {
+            const streamName = document.getElementById('stream-name').value.trim();
+            const streamKey = document.getElementById('stream-key').value.trim();
+            const sourceUrl = document.getElementById('source-url').value.trim();
+
+            if (!streamKey) {
+                showAlert('add', '❌ أدخل رابط RTMP من تليجرام', 'error');
+                return;
+            }
+
+            if (!streamKey.includes('rtmp')) {
+                showAlert('add', '❌ الرابط يجب أن يحتوي على rtmp', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/telegram/stream/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        stream_name: streamName,
+                        stream_key: streamKey,
+                        source_url: sourceUrl
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showAlert('add', '✅ ' + data.message, 'success');
+                    document.getElementById('stream-name').value = '';
+                    document.getElementById('stream-key').value = '';
+                    document.getElementById('source-url').value = '';
+                    loadStreams();
+                } else {
+                    showAlert('add', '❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('add', '❌ خطأ في الاتصال', 'error');
+            }
+        }
+
+        async function stopStream(streamId) {
+            try {
+                const res = await fetch(`/api/telegram/stream/stop/${streamId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    loadStreams();
+                }
+            } catch (error) {
+                console.error('خطأ:', error);
+            }
+        }
+
+        async function deleteStream(streamId) {
+            if (!confirm('هل تريد حذف هذا البث؟')) return;
+
+            try {
+                const res = await fetch(`/api/telegram/stream/delete/${streamId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    loadStreams();
+                }
+            } catch (error) {
+                console.error('خطأ:', error);
+            }
+        }
+
+        async function viewLogs(streamId) {
+            try {
+                const res = await fetch(`/api/telegram/stream/logs/${streamId}`);
+                const data = await res.json();
+                alert(data.logs.join('\n') || 'لا توجد سجلات');
+            } catch (error) {
+                alert('فشل تحميل السجلات');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
